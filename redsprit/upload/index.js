@@ -3,6 +3,8 @@ const multer = require('multer');
 const path = require('path');
 const AWS = require('aws-sdk');
 const crypto = require('crypto');
+const axios = require('axios');
+
 
 const app = express();
 const port = 3000;
@@ -13,8 +15,8 @@ const upload = multer({ storage: storage });
 
 // Configuração da AWS
 AWS.config.update({
-  accessKeyId: 'AKIAXT2P4KS4HU7EFWVX',
-  secretAccessKey: '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',
+  accessKeyId: "mock",
+  secretAccessKey: "mock",
   region: 'us-east-1'
 });
 
@@ -52,7 +54,8 @@ app.get('/', (req, res) => {
 });
 
 // Rota para processar o upload do arquivo
-app.post('/upload', upload.single('file'), (req, res) => {
+// Rota para processar o upload do arquivo
+app.post('/upload', upload.single('file'), async (req, res) => {
   const rsIdentityToken = req.body.rsIdentity;
   if (rsIdentityToken !== 'redred') {
     res.status(403).send('Token RS-identity inválido.');
@@ -62,6 +65,17 @@ app.post('/upload', upload.single('file'), (req, res) => {
   const file = req.file;
   if (!file) {
     res.status(400).send('Nenhum arquivo foi enviado.');
+    return;
+  }
+
+  // Fazer uma requisição à API para obter a senha aleatória
+  let randomPassword;
+  try {
+    const response = await axios.get('https://bd2g2mut91.execute-api.us-east-1.amazonaws.com/default/GeneratePasswoard');
+    randomPassword = response.data
+  } catch (error) {
+    console.error('Erro ao obter a senha aleatória da API:', error);
+    res.status(500).send('Erro ao obter a senha aleatória da API.');
     return;
   }
 
@@ -78,10 +92,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
       return;
     }
 
-    // Gerar uma senha personalizada
-    const password = crypto.randomBytes(6).toString('hex');
-
-    res.send(`Arquivo enviado com sucesso para o S3. Sua senha personalizada: ${password}`);
+    res.send(`Arquivo enviado com sucesso para o S3. Sua senha personalizada: ${randomPassword}`);
   });
 });
 
