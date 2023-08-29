@@ -15,8 +15,8 @@ const upload = multer({ storage: storage });
 
 // Configuração da AWS
 AWS.config.update({
-  accessKeyId: "mock",
-  secretAccessKey: "mock",
+  accessKeyId: "",
+  secretAccessKey: "",
   region: 'us-east-1'
 });
 
@@ -71,7 +71,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   // Fazer uma requisição à API para obter a senha aleatória
   let randomPassword;
   try {
-    const response = await axios.get('https://bd2g2mut91.execute-api.us-east-1.amazonaws.com/default/GeneratePasswoard');
+    const response = await axios.get('https://tbv69sey0m.execute-api.us-east-1.amazonaws.com/default/GeneratePasswoard');
     randomPassword = response.data
   } catch (error) {
     console.error('Erro ao obter a senha aleatória da API:', error);
