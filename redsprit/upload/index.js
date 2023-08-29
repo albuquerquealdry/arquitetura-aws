@@ -15,8 +15,8 @@ const upload = multer({ storage: storage });
 
 // Configuração da AWS
 AWS.config.update({
-  accessKeyId: "",
-  secretAccessKey: "",
+  accessKeyId:
+  secretAccessKey: 
   region: 'us-east-1'
 });
 
@@ -27,7 +27,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/public', express.static('public'));
 
 // Rota para exibir a página de upload de arquivo
-app.get('/', (req, res) => {
+app.get('/uploadfile', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html>
