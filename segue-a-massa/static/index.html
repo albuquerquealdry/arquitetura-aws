@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chanel Serveless</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ff5e3a;
+            margin-bottom: 20px;
+        }
+
+        .product {
+            display: inline-block;
+            width: 250px;
+            border: 1px solid #e0e0e0;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .product-details {
+            padding: 10px;
+            color: #333;
+        }
+
+        .product-select {
+            text-align: right;
+            padding: 10px;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: #ff5e3a;
+        }
+
+        button {
+            background-color: #ff5e3a;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #ff4d29;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 60px;
+        }
+
+        .total-price {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #ff5e3a;
+        }
+
+        .pedido-items {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chanel Serveless</h1>
+        <form action="#" id="product-form">
+            <!-- O conteúdo será gerado dinamicamente a partir do JSON -->
+        </form>
+        <div class="pedido-items">
+            <h2>Itens do Pedido</h2>
+            <ul id="pedido-list"></ul>
+        </div>
+        <div class="total-price">
+            Total da compra: <span id="total-amount">R$ 0.00</span>
+        </div>
+        <button id="enviar-pedido">Enviar Pedido</button>
+    </div>
+
+    <script>
+        // O JSON com as informações dos produtos
+        var produtos = {
+            "🌱 Natural": { "Preço original": 5, "Preço promocional": 4 },
+            "🐑 Bodinho": { "Preço original": 8, "Preço promocional": 6 },
+            "🐐 Bode": { "Preço original": 12, "Preço promocional": 10 },
+            "🐏 Bodão": { "Preço original": 16, "Preço promocional": 14 },
+            "🇨🇴 Colombia": { "Preço original": 20, "Preço promocional": 18 },
+            "🌲 Flor Out": { "Preço original": 20, "Preço promocional": 18 },
+            "🌳 Flor Gorilla Glue Out": { "Preço original": 40, "Preço promocional": 35 },
+        };
+
+        var form = document.getElementById("product-form");
+        var totalAmountElement = document.getElementById("total-amount");
+        var pedidoList = document.getElementById("pedido-list");
+        var enviarPedidoButton = document.getElementById("enviar-pedido");
+
+        // Gerar campos de seleção para cada produto
+        for (var produto in produtos) {
+            var divProduto = document.createElement("div");
+            divProduto.className = "product";
+
+            var divDetalhes = document.createElement("div");
+            divDetalhes.className = "product-details";
+            var nomeProduto = document.createElement("p");
+            nomeProduto.textContent = produto;
+            divDetalhes.appendChild(nomeProduto);
+            var precoProduto = document.createElement("p");
+            precoProduto.className = "product-price";
+            precoProduto.textContent = "Preço: R$" + produtos[produto]["Preço promocional"];
+            divDetalhes.appendChild(precoProduto);
+            divProduto.appendChild(divDetalhes);
+
+            var divSelect = document.createElement("div");
+            divSelect.className = "product-select";
+            var quantidadeLabel = document.createElement("label");
+            quantidadeLabel.textContent = "Quantidade (gramas):";
+            var quantidadeInput = document.createElement("input");
+            quantidadeInput.type = "number";
+            quantidadeInput.min = "0";
+            quantidadeInput.value = "0";
+            quantidadeInput.name = produto; // Use o nome do produto como identificador
+            quantidadeInput.addEventListener("input", calcularTotal);
+            divSelect.appendChild(quantidadeLabel);
+            divSelect.appendChild(quantidadeInput);
+            divProduto.appendChild(divSelect);
+
+            form.appendChild(divProduto);
+        }
+
+        // Função para calcular o preço total
+        function calcularTotal() {
+            var formData = new FormData(form);
+            var total = 0;
+
+            pedidoList.innerHTML = ''; // Limpa a lista de itens do pedido
+
+            for (var produto in produtos) {
+                var quantidade = parseInt(formData.get(produto));
+                if (quantidade > 0) {
+                    total += quantidade * produtos[produto]["Preço promocional"];
+                    // Adiciona o item ao pedido
+                    var listItem = document.createElement("li");
+                    listItem.textContent = produto + " (" + quantidade + "g)";
+                    pedidoList.appendChild(listItem);
+                }
+            }
+
+            totalAmountElement.textContent = "R$" + total.toFixed(2);
+        }
+
+        // Evento para lidar com o envio do formulário
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            alert("Pedido enviado com sucesso!");
+            // Limpa o formulário após o envio
+            form.reset();
+            pedidoList.innerHTML = '';
+            totalAmountElement.textContent = "R$ 0.00";
+        });
+
+        // Evento para lidar com o envio do pedido
+        enviarPedidoButton.addEventListener("click", function () {
+            alert("Pedido enviado com sucesso!");
+            // Limpa o formulário após o envio
+            form.reset();
+            pedidoList.innerHTML = '';
+            totalAmountElement.textContent = "R$ 0.00";
+        });
+
+        // Calcula o total inicial
+        calcularTotal();
+    </script>
+</body>
+</html>

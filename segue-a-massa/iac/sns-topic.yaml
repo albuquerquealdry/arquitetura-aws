@@ -1,0 +1,9 @@
+TopicOrderTopic: 
+  Type: AWS::SNS::Topic
+  Properties: 
+    ContentBasedDeduplication: false
+    DisplayName: OrderTopic
+    FifoTopic: false
+    Tags: 
+      - segue-a-massa
+    TopicName: OrderTopic
