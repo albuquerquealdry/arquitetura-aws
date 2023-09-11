@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Convidados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #convidados {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #convidados th, #convidados td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+        }
+        #convidados th {
+            background-color: #f2f2f2;
+        }
+        #nome {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #adicionar {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #adicionar:hover {
+            background-color: #0056b3;
+        }
+        #enviar {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #enviar:hover {
+            background-color: #1e7e34;
+        }
+        #json-output {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Convidados</h1>
+        <form id="form-convidados">
+            <label for="nome">Nome do Convidado:</label>
+            <input type="text" id="nome" placeholder="Digite o nome do convidado" required>
+            <button type="button" id="adicionar">Adicionar</button>
+        </form>
+        <table id="convidados">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button type="button" id="enviar">Enviar</button>
+        <textarea id="json-output" rows="5" cols="50" readonly></textarea>
+    </div>
+
+    <script>
+        const form = document.getElementById("form-convidados");
+        const nomeInput = document.getElementById("nome");
+        const tabelaConvidados = document.querySelector("#convidados tbody");
+        const enviarButton = document.getElementById("enviar");
+        const jsonOutput = document.getElementById("json-output"); // Elemento para exibir o JSON
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+        });
+
+        document.getElementById("adicionar").addEventListener("click", () => {
+            const nome = nomeInput.value;
+            if (nome.trim() !== "") {
+                const id = generateRandomId();
+                const newRow = tabelaConvidados.insertRow();
+                newRow.innerHTML = `<td>${id}</td><td>${nome}</td>`;
+                nomeInput.value = "";
+
+                // Atualizar o JSON na medida em que a tabela é preenchida
+                updateJsonOutput();
+            }
+        });
+
+        enviarButton.addEventListener("click", () => {
+            const convidados = Array.from(tabelaConvidados.rows).slice(1); // Ignorar a primeira linha de cabeçalho
+            const jsonData = [];
+
+            convidados.forEach(row => {
+                const id = row.cells[0].textContent;
+                const nome = row.cells[1].textContent;
+                jsonData.push({ id, nome });
+            });
+
+            // Enviar dados para a API usando o método fetch()
+            fetch('https://c17sbpjwra.execute-api.us-east-1.amazonaws.com/default/recipeInvites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Dados enviados com sucesso para a API!");
+                } else {
+                    alert("Erro ao enviar dados para a API.");
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar dados para a API:', error);
+            });
+        });
+
+        function generateRandomId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        function updateJsonOutput() {
+            const convidados = Array.from(tabelaConvidados.rows).slice(1); // Ignorar a primeira linha de cabeçalho
+            const jsonData = [];
+
+            convidados.forEach(row => {
+                const id = row.cells[0].textContent;
+                const nome = row.cells[1].textContent;
+                jsonData.push({ id, nome });
+            });
+
+            jsonOutput.value = JSON.stringify(jsonData, null, 2);
+        }
+    </script>
+</body>
+</html>
